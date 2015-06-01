@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang='en'>
+    <head>
+        <meta charset="utf-8" />
+		<title>Dragon Curve Generator</title>
+		<link rel="stylesheet" type="text/css" href="css/main.css">
+		<style>
+		body {
+			position: relative;
+			margin: 0px;
+		}
+		#canvas {
+			margin: 0px;
+			padding: 0px;
+			border: 1px solid #000;
+			background-color: #000;
+		}
+		#output {
+			margin: 0px;
+		}
+		</style>
+    </head>
+    <body>
+		<input type='button' value='Start' id='start' onclick='init();'>
+		<input type='button' value='Stop' id='stop' onclick='stopped = true;'>
+		<p id='output'>Iteration: 0</p>
+		<canvas id='canvas'>Your browser does not support the HTML5 canvas, please update it.</canvas>
+		<script>
+			var canvas = document.getElementById('canvas');
+			var output = document.getElementById('output');
+			canvas.width = window.innerWidth-2;
+			canvas.height = window.innerHeight-50;
+			var ctx = canvas.getContext("2d");
+			var curve = [true];
+			var templength = 0;
+			var curveindex = 0;
+			var linePos = [canvas.width/2, canvas.height/2];
+			var lineDir = 0;
+			var iteration = 1;
+			var rainbow = ['#f00', '#f80', '#ff0', '#0f0', '#00f', '#80f', '#f08'];
+			var rainbowindex = 0;
+			ctx.strokeStyle = rainbow[rainbowindex];
+			var fps = 60;
+			var dist = 1;
+			var stopped = false;
+			ctx.moveTo(Math.round(linePos[0]), Math.round(linePos[1]));
+			linePos[0] -= dist*Math.cos(lineDir);
+			linePos[1] += dist*Math.sin(lineDir);
+			ctx.lineTo(Math.round(linePos[0]), Math.round(linePos[1]));
+			ctx.stroke();
+			function update() {
+				templength = curve.length;
+				curve.push(curve[0]);
+				for (a = 0; a < templength; a++) {
+					if (a == (templength-1)/2) {
+						curve.push(!curve[a]);
+					}
+					else {
+						curve.push(curve[a]);
+					}
+				}
+				window.requestAnimationFrame(draw);
+			}
+			function draw() {
+				rainbowindex = (rainbowindex + 1) % 7;
+				ctx.strokeStyle = rainbow[rainbowindex];
+				ctx.beginPath(); 
+				curve.slice(curveindex, curve.length).forEach(function (item) {
+					if (item) {
+						lineDir -= Math.PI/2;
+					}
+					else {
+						lineDir += Math.PI/2;
+					}
+					ctx.moveTo(Math.round(linePos[0]), Math.round(linePos[1]));
+					linePos[0] -= dist*Math.cos(lineDir);
+					linePos[1] += dist*Math.sin(lineDir);
+					ctx.lineTo(Math.round(linePos[0]), Math.round(linePos[1]));
+				});
+				ctx.stroke();
+				curveindex = curve.length;
+				iteration++;
+				output.innerHTML = 'Iteration: ' + iteration;
+				if (!stopped) {
+					window.requestAnimationFrame(update);
+				}
+			}
+			function init() {
+				stopped = false;
+				window.requestAnimationFrame(update);
+			}
+		</script>
+		<noscript>Your browser does not support JavaScript, please update it.</noscript>
+    </body>
+</html>
